@@ -1,8 +1,10 @@
+server:
+  port: 8082
+
+
 spring:
   application:
     name: Learnzy
-  server:
-    port: 8082
   datasource:
     url: jdbc:postgresql://localhost:5432/learnzy
     username: adminuser
@@ -16,3 +18,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   seed-data:
     file-path: courses.json
+  security:
+    jwt:
+      secret-key: $backendproject-learnzy-jan-2026
+      expiration: 86400
