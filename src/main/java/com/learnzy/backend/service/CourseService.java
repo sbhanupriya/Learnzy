@@ -2,25 +2,23 @@ package com.learnzy.backend.service;
 
 import com.learnzy.backend.entity.Course;
 import com.learnzy.backend.entity.Enrollment;
-import com.learnzy.backend.entity.Topic;
 import com.learnzy.backend.entity.Users;
 import com.learnzy.backend.enums.EnrollmentStatus;
-import com.learnzy.backend.exception.ResourceNotFoundException;
-import com.learnzy.backend.exception.UserAlreadyEnrolledException;
+import com.learnzy.backend.exception.custom.ResourceNotFoundException;
+import com.learnzy.backend.exception.custom.DuplicateEnrollmentException;
 import com.learnzy.backend.models.*;
 import com.learnzy.backend.repository.CourseRepository;
 import com.learnzy.backend.repository.EnrollmentRepository;
 import com.learnzy.backend.repository.UserRepository;
-import jakarta.annotation.PostConstruct;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Log4j2
 public class CourseService {
 
     @Autowired
@@ -62,7 +60,7 @@ public class CourseService {
 
     public CourseDetail getCourseDetail(String courseId){
         Course course = courseRepository.findByCourseCode(courseId).orElseThrow(() ->
-                new ResourceNotFoundException(String.format("Course {} not found", courseId)));
+                new ResourceNotFoundException(String.format("Course %s not found", courseId)));
 
         List<TopicDetail> topicDetailList = course.getTopicList().stream().map(topic -> {
 
@@ -97,15 +95,19 @@ public class CourseService {
     }
 
     public EnrollmentResponse enroll(String courseId, Long userId) {
+
         Course course = courseRepository.findByCourseCode(courseId).orElseThrow(() ->
-                new ResourceNotFoundException(String.format("Course {} not found", courseId)));
+                new ResourceNotFoundException(String.format("Course %s not found", courseId)));
 
         Users user = userRepository.getReferenceById(userId);
 
         Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, course.getId());
 
-        if(enrollment!=null && enrollment.isActive())
-            throw new UserAlreadyEnrolledException("You are already enrolled in this course");
+        if(enrollment!=null && enrollment.isActive()) {
+            log.error(String.format("Enrollment failed as userId %s already enrolled for course %s", userId, courseId));
+            throw new DuplicateEnrollmentException("You are already enrolled in this course");
+        }
+
 
         if(enrollment==null){
             enrollment = Enrollment.builder()
@@ -115,6 +117,7 @@ public class CourseService {
                     .build();
         }
 
+        log.info(String.format("User %s enrolled for course %s", userId, courseId));
         enrollment.setStatus(EnrollmentStatus.ENROLLED);
 
         enrollmentRepository.save(enrollment);
@@ -125,6 +128,5 @@ public class CourseService {
                 .courseTitle(course.getTitle())
                 .enrolledAt(enrollment.getUpdatedDate())
                 .build();
-
     }
 }

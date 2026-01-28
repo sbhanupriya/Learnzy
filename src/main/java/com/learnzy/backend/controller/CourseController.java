@@ -4,6 +4,8 @@ import com.learnzy.backend.models.CourseDetail;
 import com.learnzy.backend.models.CourseSummaryResponse;
 import com.learnzy.backend.models.EnrollmentResponse;
 import com.learnzy.backend.service.CourseService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ public class CourseController {
        return new ResponseEntity<>(courseSummaryResponse, HttpStatus.OK);
     }
 
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/{courseId}/enroll")
     public ResponseEntity<EnrollmentResponse> enroll(@PathVariable String courseId, Authentication authentication){
         EnrollmentResponse enrollmentResponse = courseService.enroll(courseId, (Long) authentication.getPrincipal());

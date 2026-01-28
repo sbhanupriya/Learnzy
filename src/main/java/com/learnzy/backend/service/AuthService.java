@@ -1,9 +1,8 @@
 package com.learnzy.backend.service;
 
 import com.learnzy.backend.entity.Users;
-import com.learnzy.backend.exception.UnauthorisedException;
-import com.learnzy.backend.exception.UserAlreadyRegisteredException;
-import com.learnzy.backend.exception.UserNotRegisteredException;
+import com.learnzy.backend.exception.custom.UnauthorisedException;
+import com.learnzy.backend.exception.custom.DuplicateEmailException;
 import com.learnzy.backend.models.auth.LoginRequest;
 import com.learnzy.backend.models.auth.LoginResponse;
 import com.learnzy.backend.models.auth.RegistrationRequest;
@@ -31,8 +30,12 @@ public class AuthService {
     private JwtService jwtService;
 
     public RegistrationResponse register(RegistrationRequest userRegistrationRequest) {
-            if (userRepository.findByEmail(userRegistrationRequest.getEmail()).isPresent())
-                throw new UserAlreadyRegisteredException(String.format("email {0} is already registered", userRegistrationRequest.getEmail()));
+
+
+            if (userRepository.findByEmail(userRegistrationRequest.getEmail()).isPresent()){
+                log.error(String.format("email %s is already registered", userRegistrationRequest.getEmail()));
+                throw new DuplicateEmailException(String.format("email $s is already registered", userRegistrationRequest.getEmail()));
+            }
 
             Users user = Users.builder()
                     .email(userRegistrationRequest.getEmail().toLowerCase())
@@ -47,6 +50,7 @@ public class AuthService {
                     .message("User registered successfully")
                     .build();
 
+            log.info(String.format("Registered user with email %s", userRegistrationRequest.getEmail()));
             return userRegistrationResponse;
     }
 
@@ -54,12 +58,12 @@ public class AuthService {
 
         Optional<Users> user = userRepository.findByEmail(loginRequest.getEmail());
 
-        if (user.isEmpty())
-            throw new UserNotRegisteredException(String.format("email {0} is not registered", loginRequest.getEmail()));
-
-        if(!passwordEncoder.matches(loginRequest.getPassword(), user.get().getPassword())){
-            throw new UnauthorisedException("email or password is wrong");
+        if (user.isEmpty() || (!passwordEncoder.matches(loginRequest.getPassword(), user.get().getPassword()))){
+            log.error(String.format("Login Failed as invalid credentials for %s", loginRequest.getEmail()));
+            throw new UnauthorisedException("Invalid email or password");
         }
+
+        log.info("User {} logged in", loginRequest.getEmail());
 
         return LoginResponse.builder()
                 .email(loginRequest.getEmail())

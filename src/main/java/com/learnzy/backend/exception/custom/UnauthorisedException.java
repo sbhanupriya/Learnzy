@@ -1,4 +1,4 @@
-package com.learnzy.backend.exception;
+package com.learnzy.backend.exception.custom;
 
 public class UnauthorisedException extends RuntimeException {
     public UnauthorisedException(String message){

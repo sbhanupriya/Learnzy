@@ -5,6 +5,7 @@ import com.learnzy.backend.models.auth.LoginResponse;
 import com.learnzy.backend.models.auth.RegistrationRequest;
 import com.learnzy.backend.models.auth.RegistrationResponse;
 import com.learnzy.backend.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +22,13 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<RegistrationResponse> register(@RequestBody RegistrationRequest registrationRequest){
+    public ResponseEntity<RegistrationResponse> register(@Valid @RequestBody RegistrationRequest registrationRequest){
         RegistrationResponse registrationResponse = authService.register(registrationRequest);
         return new ResponseEntity<>(registrationResponse, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest){
         LoginResponse loginResponse = authService.login(loginRequest);
         return new ResponseEntity<>(loginResponse, HttpStatus.CREATED);
     }

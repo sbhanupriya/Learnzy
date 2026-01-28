@@ -1,4 +1,4 @@
-package com.learnzy.backend.exception;
+package com.learnzy.backend.exception.custom;
 
 public class ForbiddenException extends RuntimeException {
     public ForbiddenException(String message){
