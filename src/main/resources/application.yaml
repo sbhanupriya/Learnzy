@@ -16,6 +16,10 @@ spring:
     show-sql: false
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  elasticsearch:
+    uris: http://localhost:9200/
+    username: elastic
+    password: 6JA9bIBGgR9OI5aaRjLz
   seed-data:
     file-path: courses.json
   security:

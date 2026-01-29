@@ -36,4 +36,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUnauthorisedException(UnauthorisedException exception){
         return new ResponseEntity<>(ErrorResponse.builder().error("Unauthorised").message(exception.getMessage()).timestamp(OffsetDateTime.now()).build(), HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(Exception exception){
+        return new ResponseEntity<>(ErrorResponse.builder().error("Internal Server Error").message(exception.getMessage()).timestamp(OffsetDateTime.now()).build(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
