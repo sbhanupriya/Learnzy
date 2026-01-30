@@ -172,6 +172,7 @@ public class LoadDataService {
     }
 
     private boolean insertInElasticSearch(){
-        return elasticsearchOperations.count(Query.findAll(), LearningSearchDocument.class)==0;
+        IndexCoordinates index = IndexCoordinates.of("learningsearchindex");
+        return !elasticsearchOperations.indexOps(index).exists() || elasticsearchOperations.count(Query.findAll(), LearningSearchDocument.class)==0;
     }
 }
