@@ -109,7 +109,7 @@ public class SearchService {
                 String topidId = levels[1];
                 String subtopic = levels.length>=3?levels[2]:"";
                 if(courseHashMap.get(courseId)==null){
-                    courseHashMap.put(courseId, courseRepository.findByCourseCode(courseId).get());
+                    courseHashMap.put(courseId, courseRepository.findByCourseCodeIgnoreCase(courseId).get());
                 }
                 if(matchHashMap.get(courseId)==null){
                     SearchResult searchResult = SearchResult.builder()

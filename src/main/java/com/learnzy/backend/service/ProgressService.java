@@ -1,9 +1,6 @@
 package com.learnzy.backend.service;
 
-import com.learnzy.backend.entity.Enrollment;
-import com.learnzy.backend.entity.Progress;
-import com.learnzy.backend.entity.Subtopic;
-import com.learnzy.backend.entity.Users;
+import com.learnzy.backend.entity.*;
 import com.learnzy.backend.exception.custom.ForbiddenException;
 import com.learnzy.backend.exception.custom.ResourceNotFoundException;
 import com.learnzy.backend.models.progress.CompleteSubtopicResponse;
@@ -44,8 +41,8 @@ public class ProgressService {
                 new ResourceNotFoundException(String.format("Enrollment %s not found", enrollmentId)));
 
         if(!enrollment.getUser().getId().equals(userId)){
-            log.error(String.format("Track progress failed for user %s as not enrolled in id %s course %s",userId, enrollmentId, enrollment.getCourse().getCourseCode()));
-            throw new ForbiddenException(String.format("You are not enrolled in %s", enrollment.getCourse().getCourseCode()));
+            log.error(String.format("Track progress failed for user %s as not enrolled with id %s",userId, enrollmentId));
+            throw new ForbiddenException(String.format("You are not authorized to view this enrollment"));
         }
 
         Long subtopicCount = enrollment.getCourse().getTopicList().stream().mapToLong(topic-> topic.getSubtopicList().size()).sum();
@@ -81,22 +78,19 @@ public class ProgressService {
 
     public CompleteSubtopicResponse markSubtopicCompleted(String subtopicId, Long userId){
 
-       Users user =  userRepository.getReferenceById(userId);
+        Subtopic subtopicCompleted = subtopicRepository.findBySubtopicCodeIgnoreCase(subtopicId).orElseThrow(() ->
+                new ResourceNotFoundException(String.format("Subtopic %s not found", subtopicId)));
+
+        Users user =  userRepository.getReferenceById(userId);
 
        Enrollment found = user.getEnrollmentList().stream()
                 .filter(enrollment -> enrollment.getCourse().getTopicList().stream()
                         .anyMatch(topic -> topic.getSubtopicList().stream().anyMatch(subtopic ->
                                 subtopic.getSubtopicCode().equalsIgnoreCase(subtopicId))))
-                .findFirst().orElseThrow(() -> new ForbiddenException(String.format("You are not enrolled")));
+                .findFirst().orElseThrow(() -> new ForbiddenException(String.format("You must be enrolled in this course to mark subtopics as complete")));
 
 
-       Subtopic subtopicCompleted = found.getCourse().getTopicList().stream()
-                .flatMap(topic -> topic.getSubtopicList().stream())
-                .filter(s -> s.getSubtopicCode().equalsIgnoreCase(subtopicId))
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Subtopic {} not found", subtopicId)));
-
-        Progress progress = Progress.builder()
+       Progress progress = Progress.builder()
                 .subtopic(subtopicCompleted)
                 .enrollment(found)
                 .build();

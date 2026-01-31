@@ -32,9 +32,9 @@ public class AuthService {
     public RegistrationResponse register(RegistrationRequest userRegistrationRequest) {
 
 
-            if (userRepository.findByEmail(userRegistrationRequest.getEmail()).isPresent()){
-                log.error(String.format("email %s is already registered", userRegistrationRequest.getEmail()));
-                throw new DuplicateEmailException(String.format("email $s is already registered", userRegistrationRequest.getEmail()));
+            if (userRepository.findByEmailIgnoreCase(userRegistrationRequest.getEmail()).isPresent()){
+                log.error("email {} is already registered", userRegistrationRequest.getEmail());
+                throw new DuplicateEmailException(String.format("email %s is already registered", userRegistrationRequest.getEmail()));
             }
 
             Users user = Users.builder()
@@ -56,7 +56,7 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest loginRequest) {
 
-        Optional<Users> user = userRepository.findByEmail(loginRequest.getEmail());
+        Optional<Users> user = userRepository.findByEmailIgnoreCase(loginRequest.getEmail());
 
         if (user.isEmpty() || (!passwordEncoder.matches(loginRequest.getPassword(), user.get().getPassword()))){
             log.error(String.format("Login Failed as invalid credentials for %s", loginRequest.getEmail()));

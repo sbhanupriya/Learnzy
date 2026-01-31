@@ -59,7 +59,7 @@ public class CourseService {
     }
 
     public CourseDetail getCourseDetail(String courseId){
-        Course course = courseRepository.findByCourseCode(courseId).orElseThrow(() ->
+        Course course = courseRepository.findByCourseCodeIgnoreCase(courseId).orElseThrow(() ->
                 new ResourceNotFoundException(String.format("Course %s not found", courseId)));
 
         List<TopicDetail> topicDetailList = course.getTopicList().stream().map(topic -> {
@@ -96,7 +96,7 @@ public class CourseService {
 
     public EnrollmentResponse enroll(String courseId, Long userId) {
 
-        Course course = courseRepository.findByCourseCode(courseId).orElseThrow(() ->
+        Course course = courseRepository.findByCourseCodeIgnoreCase(courseId).orElseThrow(() ->
                 new ResourceNotFoundException(String.format("Course %s not found", courseId)));
 
         Users user = userRepository.getReferenceById(userId);
