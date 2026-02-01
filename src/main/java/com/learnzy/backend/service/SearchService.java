@@ -40,24 +40,6 @@ public class SearchService {
 
     public SearchResponse searchWithRanking(String keyword)  {
 
-            SearchRequest searchRequest = SearchRequest.of(r -> r
-                    .index("learningsearchindex")
-                    .query(q -> q
-                            .multiMatch(m -> m
-                                    .query(keyword)
-                                    .fields("title^3", "content^2", "fieldId")
-                                    .type(TextQueryType.BoolPrefix)   // partial search velo
-                                    .fuzziness("AUTO")     // fuzzy velcoity
-                            )
-                    )
-                    .highlight(h -> h
-                            .fields("title", f -> f)
-                            .fields("content", f -> f)
-                            .preTags("<b>")
-                            .postTags("</b>")
-                    )
-            );
-
             Query query = NativeQuery.builder()
                     .withQuery(q -> q
                             .bool(b -> b
