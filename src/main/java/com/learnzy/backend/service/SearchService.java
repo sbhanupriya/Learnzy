@@ -40,17 +40,29 @@ public class SearchService {
 
     public SearchResponse searchWithRanking(String keyword)  {
 
-            Query query = NativeQuery.builder()
-                    .withQuery(q -> q
-                            .bool(b -> b
-                                    .should(s -> s.multiMatch(m -> m
-                                            .query(keyword)
-                                            .fields("title^3", "content^2", "fieldId")
-                                            .type(TextQueryType.BoolPrefix)
-                                            .fuzziness("AUTO")
-                                    )))).build();
+        Query query = NativeQuery.builder()
+                .withQuery(q -> q
+                        .bool(b -> b
+                                .should(s -> s.multiMatch(m -> m
+                                        .query(keyword)
+                                        .fields("title^3", "content^2", "fieldId")
+                                        .type(TextQueryType.BestFields)   // supports fuzziness
+                                        .fuzziness("AUTO")
+                                ))
+                                .should(s -> s.multiMatch(m -> m
+                                        .query(keyword)
+                                        .fields(
+                                                "title", "title._2gram", "title._3gram",
+                                                "content", "content._2gram", "content._3gram",
+                                                "fieldId"
+                                        )
+                                        .type(TextQueryType.BoolPrefix)  // prefix/partial matching
+                                ))
+                        )
+                ).build();
 
-            SearchHits<LearningSearchDocument> hits =
+
+        SearchHits<LearningSearchDocument> hits =
                     elasticsearchOperations.search(query, LearningSearchDocument.class);
 
 
