@@ -150,9 +150,7 @@ public class LoadDataService {
 
                 if (!elasticsearchOperations.indexOps(index).exists()) {
                     elasticsearchOperations.indexOps(LearningSearchDocument.class).create();
-                    elasticsearchOperations.indexOps(LearningSearchDocument.class).putMapping(
-                            elasticsearchOperations.indexOps(LearningSearchDocument.class).createMapping()
-                    );
+                    elasticsearchOperations.indexOps(LearningSearchDocument.class).putMapping();
                 }
 
                 elasticsearchOperations.save(learningSearchCourses, IndexCoordinates.of("learningsearchindex"));

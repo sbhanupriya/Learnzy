@@ -15,11 +15,11 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 public class LearningSearchDocument {
     @Id
     public String id;
-    @Field(type = FieldType.Keyword)
+    @Field(type= FieldType.Search_As_You_Type)
     private String fieldId;
-    @Field(type = FieldType.Text)
+    @Field(type= FieldType.Search_As_You_Type)
     private String title;
-    @Field(type = FieldType.Text)
+    @Field(type= FieldType.Search_As_You_Type)
     private String content;
     @Field(type = FieldType.Keyword)
     private ContentType contentType;
